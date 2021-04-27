@@ -28,13 +28,17 @@ def execute_process_finder(memory_file):
 
 
 def determine_profile(memory_file):
-    profile_output = subprocess.run(["volatility", ], capture_output=True, text=True)
+    profile_output = subprocess.run(["volatility", memory_file, "kdbgscan"], capture_output=True, text=True)
+    print(profile_output)
 
 
 def main():
     parser = argparse.ArgumentParser(description='Autovolatile Stuff')
     parser.add_argument('-f', '--file', action='store')
     args = parser.parse_args()
+
+
+
 
 
 
