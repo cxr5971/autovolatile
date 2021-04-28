@@ -30,7 +30,7 @@ def main():
     args = parser.parse_args()
 
     vol_engine = Vol_Bot(args.file, args.location)
-    vol_engine.pslist()
+    vol_engine.netscan()
     
 
 
