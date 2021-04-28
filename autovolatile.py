@@ -28,9 +28,9 @@ def execute_process_finder(vol_engine):
     return
 
 
-def determine_profile(vol_engine):
-    profile_output = subprocess.run([vol_engine.vol_loc, vol_engine.memory_file, "kdbgscan"], capture_output=True, text=True)
-    print(profile_output)
+#def determine_profile(vol_engine):
+#    profile_output = subprocess.run([vol_engine.vol_loc, vol_engine.memory_file, "kdbgscan"], capture_output=True, text=True)
+#    print(profile_output)
 
 
 def main():
