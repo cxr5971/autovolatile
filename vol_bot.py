@@ -16,9 +16,14 @@ class Vol_Bot:
     def set_vol_loc(self, filepath):
         self.vol_loc = filepath
 
-    def ps_list(self):
+    def pslist(self):
         pslist_output = subprocess.run([self.vol_loc, "-f", self.memory_file, "windows.pslist.PsList"], capture_output=True, text=True)
         print(pslist_output.stdout)
 
+    def handles(self):
+        handles_output = subprocess.run([self.vol_loc, "-f", self.memory_file, "windows.handles.Handles"], capture_output=True, text=True)
+        print(handles_output.stdout)
 
-
+    def netscan(self):
+        netscan_output = subprocess.run([self.vol_loc, "-f", self.memory_file, "windows.netscan.NetScan"], capture_output=True, text=True)
+        print(netscan_output.stdout)
