@@ -25,6 +25,7 @@ class Section:
         self.process_info = []
         self.files = []
         self.services = []
+        self.handles = []
     
     def __str__(self):
         return("pid: " + str(self.pid) + " offset: " + self.offset +\
@@ -47,6 +48,24 @@ class Section:
 
     def set_files(self, file_data):
         self.files.append(file_data)
+
+    def get_attribute(self, attribute_name):
+        if attribute_name == "pid":
+            return self.pid
+        if attribute_name == "offset":
+            return self.offset
+        if attribute_name == "network":
+            return self.network
+        if attribute_name == "dlls":
+            return self.dlllist
+        if attribute_name == "process_info":
+            return self.process_info
+        if attribute_name == "files":
+            return self.files
+        if attribute_name == "services":
+            return self.services
+        if attribute_name == "handles":
+            return self.handles
 
 
 

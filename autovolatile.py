@@ -29,6 +29,49 @@ def execute_process_finder(vol_engine, pqueue):
 #    print(profile_output)
 
 
+def generate_html(sections_list):
+    html_text = "<html>" +"<head>"+"<style>"
+    html_text += "table, th, td {border: 1px solid black;border-collapse: collapse;border-spacing:8px}"
+    html_text += "</style>" + "</head>" + "<body>"
+    for sec in sections_list:
+        html_text += "<table style='width:50%'>"
+        html_text += "<tr>"
+        html_text += "<td>" + "<b>pid</b>:" + "</td>"
+        html_text += "<td>" + str(sec.pid) + "</th>"
+        html_text += "</tr>"
+        html_text += "<br><br><br><br>"
+        html_text += "<tr>"
+        html_text +="<td>" + "<b>offset</b>:" + "</td>"
+        html_text +="<td>" + str(sec.offset) + "</th>"
+        html_text += "</tr>"
+        html_text += "<tr>"
+        html_text += "<td>" + "<b>network</b>:" + "</td>"
+        html_text += "<td>"
+        for item in sec.network:
+            html_text += str(item) + "<br>"
+        html_text += "</tr>"
+        html_text += "<tr>"
+        html_text += "<td>" + "<b>dlls</b>:" + "</td>"
+        html_text += "<td>"
+        for item in sec.dlls:
+            html_text += str(item) + "<br>"
+        html_text += "</tr>"
+        html_text += "<tr>"
+        html_text += "<td>" + "<b>dlls</b>:" + "</td>"
+        html_text += "<td>"
+        for item in sec.cmdline:
+            html_text += str(item) + "<br>"
+        html_text += "</tr"
+        
+        
+    html_text += "</table>" + "</body>" + "</html>"
+    f = open("report.html", "w")
+    f.write(html_text)
+    f.close()
+
+
+
+
 def main():
     parser = argparse.ArgumentParser(description='Autovolatile Stuff')
     parser.add_argument('-l', '--location', action='store', required=True)
@@ -93,10 +136,7 @@ def main():
                 if item[d]['Offset'] in sec.process_info['Offset'] or item[d]['PID'] in sec.process_info['PID']:
                     sec.network.append(item[d])
 
-    for sec in sections_list:
-        print(sec)
-        print("\n\n")
-
+    generate_html(sections_list)
 
     
 
