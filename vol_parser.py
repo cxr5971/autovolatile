@@ -2,65 +2,36 @@
 class Vol_Parser:
 
 
-    def __init__(self, plugin_type):
+    def __init__(self):
+        self.plugin_type = None
+
+    def set_plugin(self, plugin_type):
         self.plugin_type = plugin_type
 
-
-
-
-#Need to come back and add yarascan
-#Return list of process_api objects
-    def parse_data(self,output):
-        data = tab_parser(output)
-
-        #Returns a list of process dicts
-        if self.plugin_type == "windows.pslist.PsList":
-            process_data = parse_process(data)
-            return process_data
-        #Returns a list of process dicts
-        elif self.plugin_type == "windows.psscan.PsScan":
-            return parse_process(data)
-        #PSTREE IS BROKE IN VOL3
-        # Returns a 
-        #elif self.plugin_type == "windows.pstree.PsTree":
-        #    return
-        elif self.plugin_type == "windows.netscan.NetScan":
-            return parse_netscan(data)
-        elif self.plugin_type == "windows.handles.Handles":
-            return parse_handles(data)
-        elif self.plugin_type == "windows.modules.Modules":
-            return parse_modules(data)
-        elif self.plugin_type == "windows.dlllist.DllList":
-            return parse_dlllist(data)
-        elif self.plugin_type == "windows.cmdline.CmdLine":
-            return parse_cmdline(data)
-        elif self.plugin_type == "windows.svcscan.SvcScan":
-            return parse_svcscan(data)
-
-            
-
-
-    def tab_parser(self, output):
+    @staticmethod
+    def tab_parser(output):
+        output = output.split("\n")
         output_list = []
-
+        
         for line in output:
             
-            if current_line == "":
+            if line == "":
                 continue
 
-            current_line = line.split('\t'):
-            if current_line[0] == "Volatility":
+            current_line = line.split('\t')
+            if current_line[0][0:10] == "Volatility":
                 continue
 
-            if current_line[0] == "Progress:":
+            if current_line[0][0:9] == "Progress:":
                 continue
 
             line_list = []
             for item in current_line:
                 line_list.append(item)
 
-            output_list.append(item)
+            output_list.append(line_list)
         return output_list
+
 
     #Used for pslist and psscan
     #Returns a list that contains a dictionary which a sub dictionary containing info about processes
@@ -193,7 +164,41 @@ class Vol_Parser:
 
 
 
+#Need to come back and add yarascan
+#Return list of process_api objects
+    def parse_data(self,output):
+        data = self.tab_parser(output)
 
+        #Returns a list of process dicts
+        if self.plugin_type == "windows.pslist.PsList":
+            process_data = self.parse_process(data)
+            return process_data
+        #Returns a list of process dicts
+        elif self.plugin_type == "windows.psscan.PsScan":
+            return self.parse_process(data)
+        #PSTREE IS BROKE IN VOL3
+        # Returns a 
+        #elif self.plugin_type == "windows.pstree.PsTree":
+        #    return
+        elif self.plugin_type == "windows.netscan.NetScan":
+            return self.parse_netscan(data)
+        elif self.plugin_type == "windows.handles.Handles":
+            return self.parse_handles(data)
+        elif self.plugin_type == "windows.modules.Modules":
+            return self.parse_modules(data)
+        elif self.plugin_type == "windows.dlllist.DllList":
+            return self.parse_dlllist(data)
+        elif self.plugin_type == "windows.cmdline.CmdLine":
+            return self.parse_cmdline(data)
+        elif self.plugin_type == "windows.svcscan.SvcScan":
+            return self.parse_svcscan(data)
+
+            
+
+
+    
+
+    
 
 
 
