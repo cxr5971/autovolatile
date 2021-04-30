@@ -80,12 +80,13 @@ class Vol_Parser:
             outer_dll_dict = {}
             inner_dll_dict = {}
             inner_dll_dict['PID'] = entry[0]
-            inner_dll_dict['Process Base'] = entry[1]
-            inner_dll_dict['Size'] = entry[2]
-            inner_dll_dict['Name'] = entry[3]
-            inner_dll_dict['Path'] = entry[4]
-            inner_dll_dict['LoadTime'] = entry[5]
-            inner_dll_dict['File output'] = entry[6]
+            inner_dll_dict['Process'] = entry[1]
+            inner_dll_dict['Base'] = entry[2]
+            inner_dll_dict['Size'] = entry[3]
+            inner_dll_dict['Name'] = entry[4]
+            inner_dll_dict['Path'] = entry[5]
+            inner_dll_dict['LoadTime'] = entry[6]
+            inner_dll_dict['File output'] = entry[7]
             outer_dll_dict[entry[3]] = inner_dll_dict
             all_dll_list.append(outer_dll_dict)
 
@@ -159,6 +160,27 @@ class Vol_Parser:
             inner_netscan_dict['Created'] = entry[9]
             outer_netscan_dict[entry[0]] = inner_netscan_dict
             all_netscan_list.append(outer_netscan_dict)
+
+        return all_netscan_list
+
+
+    def parse_yarascan(self, data):
+        all_yarascan_list = []
+        for entry in data[1:]:
+            outer_yarascan_dict = {}
+            inner_yarascan_dict = {}
+            inner_yarascan_dict['Offset'] = entry[0]
+            inner_yarascan_dict['IP'] = entry[1]
+            inner_yarascan_dict['Component'] = entry[2]
+            inner_yarascan_dict['Value'] = entry[3]
+            inner_yarascan_dict['ForeignAddr'] = entry[4]
+            inner_yarascan_dict['ForeignPort'] = entry[5]
+            inner_yarascan_dict['State'] = entry[6]
+            inner_yarascan_dict['PID'] = entry[7]
+            inner_yarascan_dict['Owner'] = entry[8]
+            inner_yarascan_dict['Created'] = entry[9]
+            outer_yarascan_dict[entry[0]] = inner_yarascan_dict
+            all_netscan_list.append(outer_yarascan_dict)
 
         return all_netscan_list
 
