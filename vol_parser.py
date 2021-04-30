@@ -24,9 +24,9 @@ class Vol_Parser:
         self.plugin_type = plugin_type
 
     #Function: tab_parser
-    #Parameters: outou
-    #Description:
-    #Returns:
+    #Parameters: output (the vol plugin output)
+    #Description: Takes output from a vol plugin and parses the first few lines out, getting it ready for storing the data
+    #Returns: output_list (list of entries from the Vol plugin output, ex. each line being a process in the case of psscan)
     @staticmethod
     def tab_parser(output):
         output = output.split("\n")
@@ -51,9 +51,10 @@ class Vol_Parser:
             output_list.append(line_list)
         return output_list
 
-
-    #Used for pslist and psscan
-    #Returns a list that contains a dictionary which a sub dictionary containing info about processes
+    #Function: parse_process
+    #Parameters: self (this object), data (the data retrieved after parsing from tab_parser. Just has the actual important vol data)
+    #Description: Parses the pslist or psscan process data into a list of all processes
+    #Returns: list of dicts that contain process info
     def parse_process(self, data):
         all_process_list = []
         for entry in data[1:]:
@@ -75,7 +76,11 @@ class Vol_Parser:
 
         return all_process_list
 
-    #Used for modules plugins
+    #Function: parse_modules
+    #Parameters: self (this object), data (data retrived from volatility modules plugin after parsing tabs)
+    #Description: Parses the modules data into a list of all modules
+    #Returns: list of dicts that contain module information
+
     def parse_modules(self, data):
         all_modules_list = []
         for entry in data[1:]:
@@ -92,7 +97,10 @@ class Vol_Parser:
 
         return all_modules_list
     
-
+    #Function: parse_dlllist
+    #Parameters: self (this object), data (data retrieved from vol dlllist plugin after parsing tabs)
+    #Description: Parses the dlllist data into a list of all DLLs
+    #Returns: list of dicts that contain dll information
     def parse_dlllist(self, data):
         all_dll_list = []
         for entry in data[1:]:
@@ -111,7 +119,10 @@ class Vol_Parser:
 
         return all_dll_list
 
-
+    #Function: parse_cmdline
+    #Parameters: self (this object), data (data retrieved from vol cmdline plugin after parsing tabs)
+    #Description: Parses the cmdline data into a list of all cmdline activities
+    #Returns: list of dicts that contain cmdline information
     def parse_cmdline(self, data):
         all_cmdline_list = []
         for entry in data[1:]:
@@ -125,6 +136,10 @@ class Vol_Parser:
         return all_cmdline_list
 
 
+    #Function: parse_svcscan
+    #Parameters: self (this object), data (data retrieved from vol svcscan plugin after parsing tabs)
+    #Description: Parses the svcscan data into a list of all services
+    #Returns: list of dicts that contain services information
     def parse_svcscan(self, data):
         all_svcscan_list = []
         for entry in data[1:]:
@@ -144,6 +159,10 @@ class Vol_Parser:
 
         return all_svcscan_list
 
+    #Function: parse_handles
+    #Parameters: self (this object), data (data retrieved from vol handles plugin after parsing tabs)
+    #Description: Parses the handles data into a list of all handles
+    #Returns: list of dicts that contain handle information
     def parse_handles(self, data):
         all_handles_list = []
         for entry in data[1:]:
@@ -161,7 +180,10 @@ class Vol_Parser:
 
         return all_handles_list
 
-
+    #Function: parse_netscan
+    #Parameters: self (this object), data (data retrieved from vol netscan plugin after parsing tabs)
+    #Description: Parses the netscan data into a list of all network connections
+    #Returns: list of dicts that contain network connection information
     def parse_netscan(self, data):
         all_netscan_list = []
         for entry in data[1:]:
@@ -183,6 +205,11 @@ class Vol_Parser:
         return all_netscan_list
 
 
+    #UNUSUED AS OF RIGHT NOW
+    #Function: parse_yarascan
+    #Parameters: self (this object), data (data retrieved from vol yarascan plugin after parsing tabs)
+    #Description: Parses the yarascan data into a list of all items found from yara
+    #Returns: list of dicts that contain yarascan information
     def parse_yarascan(self, data):
         all_yarascan_list = []
         for entry in data[1:]:
@@ -205,8 +232,10 @@ class Vol_Parser:
 
 
 
-#Need to come back and add yarascan
-#Return list of process_api objects
+    #Function: parse_data
+    #Parameters: self (this object, with plugin type info), output (data retrieved from a volatility plugin)
+    #Description: Parses the volatility data into a dictionaries that can be used to add to a report
+    #Returns: output of parsing the specified plugin 
     def parse_data(self,output):
         data = self.tab_parser(output)
 
@@ -217,10 +246,6 @@ class Vol_Parser:
         #Returns a list of process dicts
         elif self.plugin_type == "windows.psscan.PsScan":
             return self.parse_process(data)
-        #PSTREE IS BROKE IN VOL3
-        # Returns a 
-        #elif self.plugin_type == "windows.pstree.PsTree":
-        #    return
         elif self.plugin_type == "windows.netscan.NetScan":
             return self.parse_netscan(data)
         elif self.plugin_type == "windows.handles.Handles":

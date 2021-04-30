@@ -1,3 +1,8 @@
+#Author: Cullen Rezendes
+#File Name: autovolatile.py
+#Description: autovolatile takes a memory file and vol.py file location and automatically runs a selection of volatility plugins
+#   on the dump (pslist, psscan, dlllist, cmdline, svcscan, handles, netscan, modules). Finally, an html report is generated
+
 import argparse
 import subprocess
 import os
@@ -11,11 +16,12 @@ from section_api import Section
 
 
 
-#def determine_profile(vol_engine):
-#    profile_output = subprocess.run([vol_engine.vol_loc, vol_engine.memory_file, "kdbgscan"], capture_output=True, text=True)
-#    print(profile_output)
-
-
+    #Function: generate_html
+    #Parameters: sections_list (list of process sections to include on report), svcdict (dictionary of services to include at top of report)
+    #   moddict (dictionary of modules to include at top of report), mem_file (the mem file we are analyzing, to print to screen at the end)
+    #Description: This (disgusting) function adds all of the Vol content that has been parsed, into the report. It also attempts to combine the information
+    #   meaning that data from different plugins with the same PID and other attributes will be placed together!
+    #Returns: None, creates report.html file
 def generate_html(sections_list, svcdict, moddict, mem_file):
     html_text = "<html>" +"<head>"+"<style>"
     html_text += ".collapsible{background-color: #777; color: white; cursor: pointer;\
@@ -116,7 +122,10 @@ def generate_html(sections_list, svcdict, moddict, mem_file):
 
 
 
-
+    #Function: main
+    #Parameters: None
+    #Description: Takes cmd args (file = memfile, location = vol.py location)
+    #Returns: Executes, parses, and relates Vol data into an html report for the analyst
 def main():
     start_time = time.time()
     parser = argparse.ArgumentParser(description='Autovolatile Stuff')
@@ -127,6 +136,7 @@ def main():
     print("Running AutoVolatile")
     print("This may take a bit...")
 
+    #Create a new vol bot to process each vol plugin
     vol_engine = Vol_Bot(args.file, args.location)
     output_dict = {}
     output_dict['pslist'] = vol_engine.pslist()
@@ -137,7 +147,8 @@ def main():
     output_dict['svcscan'] = vol_engine.svcscan()
     output_dict['handles'] = vol_engine.handles()
     output_dict['netscan'] = vol_engine.netscan()
-    #print(output_dict['psscan'])
+
+    #Create sections to be placed on the report, essentially, extract the data from each plugin dict into its corresponding section
     sections_list = []
     for item in output_dict['psscan']:
         for d in item.keys():
@@ -171,18 +182,13 @@ def main():
                 if item[d]['Offset'] in sec.process_info['Offset'] or item[d]['PID'] in sec.process_info['PID']:
                     sec.network.append(item[d])
 
-
+    #Generate the html report
     generate_html(sections_list, output_dict['svcscan'], output_dict['modules'], args.file)
 
     
-
+    #Print the time and path of report
     print("Report Generated! Path: " + str(os.getcwd()) + str("/report.html"))
     print("--- %s seconds ---" % (time.time() - start_time))
-
-    
-    #output_dict['dlllist'] = vol_engine.dlllist()
-    
-    
 
 
 
