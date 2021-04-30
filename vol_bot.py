@@ -31,7 +31,7 @@ class Vol_Bot:
         return(self.vol_parser.parse_data(psscan_output.stdout))
 
     def modules(self):
-        modules_output = subprocess.run([self.vol_loc, "-f", self.memory_file, "windows.modules.modules"], capture_output=True, text=True)
+        modules_output = subprocess.run([self.vol_loc, "-f", self.memory_file, "windows.modules.Modules"], capture_output=True, text=True)
         self.vol_parser.set_plugin("windows.modules.Modules")
         return(self.vol_parser.parse_data(modules_output.stdout))
 

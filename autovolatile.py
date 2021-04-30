@@ -1,25 +1,12 @@
 import argparse
 import subprocess
+import os
+import time
 from multiprocessing import Process, Queue
 from vol_bot import Vol_Bot
 from section_api import Section
-import pdb
 
 
-
-Plugin_List = ['pslist', 'psscan', 'modules', 'dlllist', 'cmdline', 'svcscan', 'handles', 'netscan']
-
-def execute_pslist(vol_engine, pqueue):
-    return vol_engine.pslist()
-
-
-def execute_psscan(vol_engine, pqueue):
-    psscan_output = vol_engine.pslist()
-    pqueue.put(psscan_output)
-
-
-def execute_process_finder(vol_engine, pqueue):
-    return
 
 
 
@@ -29,7 +16,7 @@ def execute_process_finder(vol_engine, pqueue):
 #    print(profile_output)
 
 
-def generate_html(sections_list):
+def generate_html(sections_list, svcdict, moddict, mem_file):
     html_text = "<html>" +"<head>"+"<style>"
     html_text += ".collapsible{background-color: #777; color: white; cursor: pointer;\
     padding: 18px;width: 100%;border: none;text-align: left;outline: none;font-size: 15px;}"
@@ -38,9 +25,39 @@ def generate_html(sections_list):
     html_text += ".collapsible:after {content: '\002B';color: white;font-weight: bold;float: right;margin-left: 5px;}"
     html_text += ".active:after {content: '\2212';}"
     html_text += "table, th, td {border: 1px solid black;border-collapse: collapse;border-spacing:8px}"
+    html_text += "h1 {text-align: center;}"
+    html_text += ".center {margin-left: auto; margin-right: auto;}"
     html_text += "</style>" + "</head>" + "<body>"
+    html_text += "<h1>AutoVolatile Report: " + str(mem_file) + "</h1>"
+    html_text += "<table class='center' style='width:50%'"
+    html_text += "<tr>"
+    html_text += "<td><b>modules</b>:</td>"
+    html_text += "<td>"
+    html_text += "<details><summary>Expand Modules List</summary>"
+    for module_entry in moddict:
+        for mod in module_entry:
+            html_text += "<details><summary>" + str(module_entry[mod]['Name']) +"</summary>"
+            html_text += str("<p><b>Offset:</b> "+ str(module_entry[mod]['Offset']) + "<br><b>Name:</b> " + str(module_entry[mod]['Name'])) + "<br><b>Path:</b> " +str(module_entry[mod]['Path']) + "<br><b>FileOutput:</b> "\
+                +str(module_entry[mod]['FileOutput'])
+            html_text += "</details>"
+    html_text += "</details>"
+    html_text += "</tr></table><br><br><br>"
+    html_text += "<table class='center' style='width:50%'"
+    html_text += "<tr>"
+    html_text += "<td><b>services</b>:</td>"
+    html_text += "<td>"
+    html_text += "<details><summary>Expand Serv List</summary>"
+    for svc_entry in svcdict:
+        for svc in svc_entry:
+            html_text += "<details><summary>" + str(svc_entry[svc]['Name']) +"</summary>"
+            html_text += str("<p><b>Offset:</b> "+ str(svc_entry[svc]['Offset']) + "<br><b>PID:</b> " + str(svc_entry[svc]['PID'])) + "<br><b>Start:</b> " +str(svc_entry[svc]['Start']) + "<br><b>State:</b> "\
+                +str(svc_entry[svc]['State']) +  "<br><b>Type:</b>" + str(svc_entry[svc]['Type']) + "<br><b>Name:</b>" + str(svc_entry[svc]['Name']) + "<br><b>Display:</b>"\
+                    +str(svc_entry[svc]['Display']) + "<br><b>Binary:</b>" + str(svc_entry[svc]['Binary'])
+            html_text += "</details>"
+    html_text += "</details>"
+    html_text += "</tr></table><br><br><br>"
     for sec in sections_list:
-        html_text += "<table style='width:50%'>"
+        html_text += "<table class='center' style='width:50%'>"
         html_text += "<tr>"
         html_text += "<td>" + "<b>Name</b>:" + "</td>"
         html_text += "<td>" + str(sec.name) + "</th>"
@@ -64,8 +81,6 @@ def generate_html(sections_list):
         html_text += "<td>" + "<b>dlls</b>:" + "</td>"
         html_text += "<td>"
         for item in sec.dlls:
-            #html_text += "<button type='button' class='collapsible'>" + str(item['Name'])
-            #html_text += "<div class='content'>" + str("<p><b>Process:</b> " + item['Process'] + " <br><b>Name:</b> " + item['Name'] + " <br><b>Path:</b> " + item['Path']) + "</p></div><br>"
             html_text += "<details><summary>" + str(item['Name']) +"</summary>" + str("<b>Process:</b> " + item['Process'] + " <br><b>Name:</b> " + item['Name'] + " <br><b>Path:</b> " + item['Path'])
             html_text += "</details>"
         html_text += "</tr>"
@@ -94,9 +109,6 @@ def generate_html(sections_list):
         html_text += "</tr>"
         html_text += "</table>"
         html_text += "<br><br><br>"
-        #html_text += "<script>var coll = document.getElementsByClassName('collapsible');var i;for (i = 0; i < coll.length; i++) {\
-        #    coll[i].addEventListener('click', function() {this.classList.toggle('active');var content = this.nextElementSibling;\
-        #        if (content.style.display === 'block') {content.style.display = 'none';} else {content.style.display = 'block';}});}</script>"
     html_text += "</body>" + "</html>"
     f = open("report.html", "w")
     f.write(html_text)
@@ -106,28 +118,17 @@ def generate_html(sections_list):
 
 
 def main():
+    start_time = time.time()
     parser = argparse.ArgumentParser(description='Autovolatile Stuff')
     parser.add_argument('-l', '--location', action='store', required=True)
     parser.add_argument('-f', '--file', action='store')
     #parser.add_argument('-p', '--profile', action='store')
     args = parser.parse_args()
+    print("Running AutoVolatile")
+    print("This may take a bit...")
 
     vol_engine = Vol_Bot(args.file, args.location)
     output_dict = {}
-    #pqueue = Queue()
-    
-    
-    
-    #for item in Plugin_List:
-    #    if item == 'pslist':
-    #        p = Process(target=execute_pslist, args=[vol_engine, pqueue])
-    #        p.start()
-        #elif item == 'psscan':
-        #    p = Process(target=execute_psscan(pqueue))
-        #elif item == 'modules':
-        #    p = Process(target=execute_modules(pqueue))
-
-    
     output_dict['pslist'] = vol_engine.pslist()
     output_dict['psscan'] = vol_engine.psscan()
     output_dict['dlllist'] = vol_engine.dlllist()
@@ -170,11 +171,13 @@ def main():
                 if item[d]['Offset'] in sec.process_info['Offset'] or item[d]['PID'] in sec.process_info['PID']:
                     sec.network.append(item[d])
 
-    generate_html(sections_list)
+
+    generate_html(sections_list, output_dict['svcscan'], output_dict['modules'], args.file)
 
     
 
-    
+    print("Report Generated! Path: " + str(os.getcwd()) + str("/report.html"))
+    print("--- %s seconds ---" % (time.time() - start_time))
 
     
     #output_dict['dlllist'] = vol_engine.dlllist()

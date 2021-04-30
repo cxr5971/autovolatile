@@ -1,13 +1,32 @@
+#Author: Cullen Rezendes
+#Class Name: Vol_Parser
+#Description: Vol_Parser is a module designed to parse any Volatility plugin output received from
+# Vol_Bot objects. The output will be a dictionary containing all of the data needed for the report
+
+
+
+
 
 class Vol_Parser:
 
-
+    #Function: __init__
+    #Parameters: self (this object)
+    #Description: Set the plugin type to None for now
+    #Returns: returns a Vol_Parser object
     def __init__(self):
         self.plugin_type = None
 
+    #Function: set_plugin
+    #Parameters: self (this object), plugin_type (plugin to parse, ex. windows.psscan.PsScan)
+    #Description: sets the volatility plugin type
+    #Returns: None
     def set_plugin(self, plugin_type):
         self.plugin_type = plugin_type
 
+    #Function: tab_parser
+    #Parameters: outou
+    #Description:
+    #Returns:
     @staticmethod
     def tab_parser(output):
         output = output.split("\n")
