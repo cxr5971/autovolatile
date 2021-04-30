@@ -2,3 +2,7 @@ memdump.bin
 sample001.bin
 __pycache__/vol_bot.cpython-38.pyc
 WindowsXPSP3x86.img
+memory.dmp
+__pycache__/section_api.cpython-38.pyc
+__pycache__/vol_bot.cpython-38.pyc
+__pycache__/vol_parser.cpython-38.pyc
