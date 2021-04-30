@@ -31,15 +31,24 @@ def execute_process_finder(vol_engine, pqueue):
 
 def generate_html(sections_list):
     html_text = "<html>" +"<head>"+"<style>"
+    html_text += ".collapsible{background-color: #777; color: white; cursor: pointer;\
+    padding: 18px;width: 100%;border: none;text-align: left;outline: none;font-size: 15px;}"
+    html_text += ".content{padding: 0 18px;display: none;overflow: hidden;background-color: #f1f1f1;}"
+    html_text += ".active, .collapsible:hover {background-color: #555;}"
+    html_text += ".collapsible:after {content: '\002B';color: white;font-weight: bold;float: right;margin-left: 5px;}"
+    html_text += ".active:after {content: '\2212';}"
     html_text += "table, th, td {border: 1px solid black;border-collapse: collapse;border-spacing:8px}"
     html_text += "</style>" + "</head>" + "<body>"
     for sec in sections_list:
         html_text += "<table style='width:50%'>"
         html_text += "<tr>"
+        html_text += "<td>" + "<b>Name</b>:" + "</td>"
+        html_text += "<td>" + str(sec.name) + "</th>"
+        html_text += "</tr>"
+        html_text += "<tr>"
         html_text += "<td>" + "<b>pid</b>:" + "</td>"
         html_text += "<td>" + str(sec.pid) + "</th>"
         html_text += "</tr>"
-        html_text += "<br><br><br><br>"
         html_text += "<tr>"
         html_text +="<td>" + "<b>offset</b>:" + "</td>"
         html_text +="<td>" + str(sec.offset) + "</th>"
@@ -48,23 +57,47 @@ def generate_html(sections_list):
         html_text += "<td>" + "<b>network</b>:" + "</td>"
         html_text += "<td>"
         for item in sec.network:
-            html_text += str(item) + "<br>"
+            html_text += str("<b>LocalAddr:</b> " + item['LocalAddr'] + ":" + item['LocalPort']\
+                 + " -> <b>ForeignAddr:</b> " + item['ForeignAddr'] + ":" + item['ForeignPort'] + " Owner: " + item['Owner']) + "<br>"
         html_text += "</tr>"
         html_text += "<tr>"
         html_text += "<td>" + "<b>dlls</b>:" + "</td>"
         html_text += "<td>"
         for item in sec.dlls:
-            html_text += str(item) + "<br>"
+            #html_text += "<button type='button' class='collapsible'>" + str(item['Name'])
+            #html_text += "<div class='content'>" + str("<p><b>Process:</b> " + item['Process'] + " <br><b>Name:</b> " + item['Name'] + " <br><b>Path:</b> " + item['Path']) + "</p></div><br>"
+            html_text += "<details><summary>" + str(item['Name']) +"</summary>" + str("<b>Process:</b> " + item['Process'] + " <br><b>Name:</b> " + item['Name'] + " <br><b>Path:</b> " + item['Path'])
+            html_text += "</details>"
         html_text += "</tr>"
         html_text += "<tr>"
-        html_text += "<td>" + "<b>dlls</b>:" + "</td>"
+        html_text += "<td>" + "<b>cmdline</b>:" + "</td>"
         html_text += "<td>"
         for item in sec.cmdline:
-            html_text += str(item) + "<br>"
-        html_text += "</tr"
-        
-        
-    html_text += "</table>" + "</body>" + "</html>"
+            html_text += str("<b>Process:</b> " + item['Process'] + " <b>Args:</b> " + item['Args']) + "<br>"
+        html_text += "</tr>"
+        html_text += "<tr>"
+        html_text += "<td>" + "<b>handles</b>:" + "</td>"
+        html_text += "<td>"
+        handles_dict = {}
+        html_text += "<details><summary>Expand List (they can usually be very long)</summary>"
+        for item in sec.handles:
+            if handles_dict.get(str(item['GrantedAccess'])+str(item['Name'])) != None:
+                continue
+            temp = item['Name']
+            if temp == "":
+                temp = 'Name Not Found'
+            html_text += "<details><summary>" + str(temp) +"</summary>" + str("<p><b>Process:</b> " \
+                + item['Process'] + "<br><b>HandleValue:</b> " + str(item['HandleValue'])) + "<br><b>Type:</b> " +str(item['Type']) + "<br><b>Name:</b> "\
+                     +str(temp)
+            html_text += "</details>"
+        html_text += "</details>"
+        html_text += "</tr>"
+        html_text += "</table>"
+        html_text += "<br><br><br>"
+        #html_text += "<script>var coll = document.getElementsByClassName('collapsible');var i;for (i = 0; i < coll.length; i++) {\
+        #    coll[i].addEventListener('click', function() {this.classList.toggle('active');var content = this.nextElementSibling;\
+        #        if (content.style.display === 'block') {content.style.display = 'none';} else {content.style.display = 'block';}});}</script>"
+    html_text += "</body>" + "</html>"
     f = open("report.html", "w")
     f.write(html_text)
     f.close()
@@ -107,8 +140,9 @@ def main():
     sections_list = []
     for item in output_dict['psscan']:
         for d in item.keys():
-            new_sec = Section(d, "")
+            new_sec = Section(d, item[d]['Offset'])
             new_sec.set_process_info(item[d])
+            new_sec.name = item[d]['ImageFileName']
             sections_list.append(new_sec)
     for item in output_dict['dlllist']:
         for d in item.keys():

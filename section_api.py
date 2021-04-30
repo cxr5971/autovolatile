@@ -19,6 +19,7 @@ class Section:
     def __init__(self, pid, address):
         self.pid = pid
         self.offset = address
+        self.name = ""
         self.network = []
         self.dlls = []
         self.cmdline = []

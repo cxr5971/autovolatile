@@ -26,12 +26,12 @@ class Vol_Bot:
         return(self.vol_parser.parse_data(pslist_output.stdout))
 
     def psscan(self):
-        psscan_output = subprocess.run([self.vol_loc, "-f", self.memory_file, "windows.pslist.PsList"], capture_output=True, text=True)
+        psscan_output = subprocess.run([self.vol_loc, "-f", self.memory_file, "windows.psscan.PsScan"], capture_output=True, text=True)
         self.vol_parser.set_plugin("windows.psscan.PsScan")
         return(self.vol_parser.parse_data(psscan_output.stdout))
 
     def modules(self):
-        modules_output = subprocess.run([self.vol_loc, "-f", self.memory_file, "windows.psscan.PsScan"], capture_output=True, text=True)
+        modules_output = subprocess.run([self.vol_loc, "-f", self.memory_file, "windows.modules.modules"], capture_output=True, text=True)
         self.vol_parser.set_plugin("windows.modules.Modules")
         return(self.vol_parser.parse_data(modules_output.stdout))
 
@@ -60,3 +60,9 @@ class Vol_Bot:
         netscan_output = subprocess.run([self.vol_loc, "-f", self.memory_file, "windows.netscan.NetScan"], capture_output=True, text=True)
         self.vol_parser.set_plugin("windows.netscan.NetScan")
         return(self.vol_parser.parse_data(netscan_output.stdout))
+
+    def yarascan(self, yarafile):
+        yarafile_string = "--yara-file="+yarafile
+        yarascan_output = subprocess.run([self.vol_loc, "-f", self.memory_file, "yarascan.YaraScan", yarafile_string], capture_output=True, text=True)
+        self.vol_parser.set_plugin("yarascan.YaraScan")
+        return(self.vol_parser.parse_data(yarascan_output))
